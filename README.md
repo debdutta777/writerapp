@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Writer Website
+
+A platform for creative writers to publish and manage their novels. Built with Next.js, Tailwind CSS, and MongoDB.
+
+## Features
+
+- **User Authentication**: Secure user signup and login
+- **Novel Management**: Create, read, update, and delete novels
+- **Chapter Management**: Add, edit, and organize chapters
+- **Image Upload**: Upload cover images for novels and illustrations for chapters
+- **View Statistics**: Track how many views each novel receives
+- **Responsive Design**: Works on desktop and mobile devices
+
+## Tech Stack
+
+- **Frontend**: Next.js 14, Tailwind CSS, TypeScript
+- **Backend**: Next.js API Routes
+- **Database**: MongoDB
+- **Authentication**: NextAuth.js
+- **File Storage**: Local storage (uploads directory)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18 or higher
+- MongoDB database
+
+### Installation
+
+1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd writer-website
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables
+Create a `.env.local` file in the root directory with the following variables:
+```
+MONGODB_URI=mongodb+srv://DEBDUTTA:iZoMmLP7scgtHHX7@cluster0.iteua.mongodb.net/creator-db?retryWrites=true&w=majority&appName=Cluster0
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-next-auth-secret
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the development server
+```bash
+npm run dev
+```
 
-## Learn More
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `src/app` - Next.js App Router pages and API routes
+- `src/components` - Reusable React components
+- `src/lib` - Utility functions and database connection
+- `src/models` - MongoDB models
+- `src/types` - TypeScript type definitions
+- `public/uploads` - Directory for uploaded images
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## API Endpoints
 
-## Deploy on Vercel
+### Authentication
+- `POST /api/register` - Register a new user
+- `POST /api/auth/[...nextauth]` - NextAuth.js authentication routes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Novels
+- `GET /api/novels` - Get all novels or novels by author
+- `POST /api/novels` - Create a new novel
+- `GET /api/novels/:id` - Get a specific novel
+- `PUT /api/novels/:id` - Update a novel
+- `DELETE /api/novels/:id` - Delete a novel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Chapters
+- `GET /api/novels/:id/chapters` - Get all chapters for a novel
+- `POST /api/novels/:id/chapters` - Create a new chapter
+- `GET /api/novels/:id/chapters/:chapterId` - Get a specific chapter
+- `PUT /api/novels/:id/chapters/:chapterId` - Update a chapter
+- `DELETE /api/novels/:id/chapters/:chapterId` - Delete a chapter
+
+## License
+
+MIT
