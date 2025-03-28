@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import dbConnect from '@/lib/dbConnect';
+import connectDB from '@/lib/mongodb';
 import Payment from '@/models/Payment';
 
 // GET /api/payments - Get user's payment methods
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
+    await connectDB();
 
     const payments = await Payment.find({ userId: session.user.id, isActive: true });
     
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await dbConnect();
+    await connectDB();
 
     // Create new payment method
     const newPayment = new Payment({
@@ -84,7 +84,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
+    await connectDB();
 
     // Mark all payment methods as inactive
     await Payment.updateMany(
