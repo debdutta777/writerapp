@@ -55,6 +55,8 @@ export default function DonationOptions() {
 
   const handleUpiSubmit = async (data: { upiId: string; upiQrImage?: string }) => {
     try {
+      setError(''); // Clear previous errors
+      
       const response = await fetch('/api/payments/upi', {
         method: 'POST',
         headers: {
@@ -66,16 +68,22 @@ export default function DonationOptions() {
       const responseData = await response.json();
       
       if (!response.ok) {
-        throw new Error(responseData.message || 'Failed to save UPI details');
+        throw new Error(responseData.error || 'Failed to save UPI details');
       }
 
+      // Success - update local state and show a success message
       setPaymentData(prev => ({
         ...prev,
         upi: { upiId: data.upiId, upiQrImage: data.upiQrImage }
       }));
       
+      // Show success message
+      setError(''); // Clear any existing errors
+      
+      // Refresh the page to show updated data
       router.refresh();
     } catch (err: any) {
+      console.error('Error saving UPI details:', err);
       setError(err.message || 'An error occurred while saving UPI details');
     }
   };

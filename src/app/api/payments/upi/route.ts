@@ -1,20 +1,30 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
+import { getServerSession } from 'next-auth';
 import Payment from '@/models/Payment';
 import connectDB from '@/lib/mongodb';
 import mongoose from 'mongoose';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession();
+    // Get session with auth options to ensure proper ID handling
+    const session = await getServerSession(authOptions);
     
-    if (!session || !session.user?.email) {
+    if (!session || !session.user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - Please log in' },
         { status: 401 }
       );
     }
     
+    // Make sure we have a user ID
+    if (!session.user.id) {
+      return NextResponse.json(
+        { error: 'User ID not found in session' },
+        { status: 400 }
+      );
+    }
+
     const { upiId, upiQrImage } = await request.json();
     
     if (!upiId) {
@@ -25,6 +35,9 @@ export async function POST(request: Request) {
     }
     
     await connectDB();
+    
+    // Log for debugging
+    console.log(`Attempting to save UPI details for user: ${session.user.id}, UPI ID: ${upiId}`);
     
     // Find existing UPI payment or create a new one
     const existingPayment = await Payment.findOne({
@@ -68,9 +81,19 @@ export async function POST(request: Request) {
       });
     }
   } catch (error) {
+    // Enhanced error logging
     console.error('Error saving UPI payment details:', error);
+    
+    // Provide more specific error messages
+    if (error instanceof mongoose.Error.ValidationError) {
+      return NextResponse.json(
+        { error: 'Validation failed: ' + Object.values(error.errors).map(e => e.message).join(', ') },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to save UPI details. Please try again.' },
       { status: 500 }
     );
   }

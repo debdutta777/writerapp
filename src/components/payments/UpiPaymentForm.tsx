@@ -55,6 +55,9 @@ export default function UpiPaymentForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Clear any previous errors
+    setError('');
+    
     if (!upiId.trim()) {
       setError('UPI ID is required');
       return;
@@ -67,6 +70,7 @@ export default function UpiPaymentForm({
       return;
     }
     
+    // Submit the form data
     onSubmit({ upiId, upiQrImage });
   };
 
