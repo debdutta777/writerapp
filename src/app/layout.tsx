@@ -7,7 +7,7 @@ import Navbar from '@/components/Navbar'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Writer Website',
+  title: 'Noob Writers',
   description: 'A platform for writers to create and share their novels',
 }
 
@@ -26,7 +26,7 @@ export default function RootLayout({
               {children}
             </main>
             <footer className="bg-gray-800 text-white py-6 text-center">
-              <p>&copy; {new Date().getFullYear()} Writer Website. All rights reserved.</p>
+              <p>&copy; {new Date().getFullYear()} Noob Writers. All rights reserved.</p>
             </footer>
           </div>
         </AuthProvider>

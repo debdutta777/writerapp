@@ -146,6 +146,45 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="px-4 py-5 sm:p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                <svg
+                  className="h-6 w-6 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  Payment Settings
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Manage your UPI and PayPal payment details
+                </p>
+              </div>
+            </div>
+            <div className="mt-5">
+              <Link
+                href="/dashboard/payments"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+              >
+                Manage Payments
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
