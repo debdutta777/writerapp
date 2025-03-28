@@ -19,15 +19,6 @@ export default function Analytics() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/login');
-    }
-    if (status === 'authenticated' && session?.user?.id) {
-      fetchNovels();
-    }
-  }, [status, session, router, fetchNovels]);
-
   const fetchNovels = useCallback(async () => {
     if (!session?.user?.id) return;
     
@@ -46,6 +37,15 @@ export default function Analytics() {
       setLoading(false);
     }
   }, [session?.user?.id]);
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.replace('/login');
+    }
+    if (status === 'authenticated' && session?.user?.id) {
+      fetchNovels();
+    }
+  }, [status, session, router, fetchNovels]);
 
   if (status === 'loading' || loading) {
     return (
