@@ -158,8 +158,8 @@ export async function DELETE(
 ) {
   try {
     const { id, chapterId } = await context.params;
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user?.id) {
+    const _session = await getServerSession(authOptions);
+    if (!_session || !_session.user?.id) {
       return NextResponse.json(
         { message: 'Unauthorized' },
         { status: 401 }
@@ -175,7 +175,7 @@ export async function DELETE(
       return NextResponse.json({ message: 'Novel not found' }, { status: 404 });
     }
 
-    if (novel.author.toString() !== session.user.id) {
+    if (novel.author.toString() !== _session.user.id) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 

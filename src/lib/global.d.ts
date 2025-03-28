@@ -1,8 +1,15 @@
-import type _mongoose from 'mongoose';
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string;
+      name: string;
+      email: string;
+    };
+  }
+}
 
-declare global {
-  let mongoose: {
-    conn: any;
-    promise: Promise<typeof import('mongoose')> | null;
-  };
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string;
+  }
 } 

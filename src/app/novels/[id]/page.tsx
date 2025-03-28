@@ -248,7 +248,9 @@ export default function NovelDetail({ params }: NovelDetailProps) {
             
             {chapters.length === 0 ? (
               <div className="text-center py-8 border border-gray-200 rounded-md">
-                <p className="text-gray-500">No chapters available yet.</p>
+                <p className="text-gray-500">
+                  You haven&apos;t created any chapters yet. Start by creating your first chapter!
+                </p>
                 {isAuthor && (
                   <p className="mt-2 text-sm text-gray-600">
                     Your novel doesn&apos;t have any chapters yet. Click the &quot;Add Chapter&quot; button to start adding content.

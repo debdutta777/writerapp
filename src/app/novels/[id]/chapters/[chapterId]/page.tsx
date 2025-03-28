@@ -69,7 +69,7 @@ export default function ChapterDetail({ params }: ChapterDetailProps) {
 
       // Set up next and previous chapter navigation
       const chapters = novelData.chapters || [];
-      const currentIndex = chapters.findIndex((c: any) => c._id === chapterId);
+      const currentIndex = chapters.findIndex((c: { _id: string }) => c._id === chapterId);
       
       if (currentIndex > 0) {
         setPrevChapter(chapters[currentIndex - 1]._id);

@@ -121,7 +121,7 @@ export default function Analytics() {
 
       {novels.length === 0 ? (
         <div className="text-center py-12 bg-white shadow rounded-lg">
-          <p className="text-gray-500">You haven't created any novels yet.</p>
+          <p className="text-gray-500">You haven&apos;t created any novels yet.</p>
           <div className="mt-4">
             <Link
               href="/novels/create"
@@ -196,6 +196,10 @@ export default function Analytics() {
           </ul>
         </div>
       )}
+
+      <p className="text-sm text-gray-600">
+        Don&apos;t forget to add your environment variables in the Vercel dashboard
+      </p>
     </div>
   );
 }
