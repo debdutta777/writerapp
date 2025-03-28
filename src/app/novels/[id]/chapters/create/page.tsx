@@ -46,7 +46,7 @@ export default function CreateChapter({ params }: NovelChapterCreateProps) {
     if (status === 'authenticated') {
       fetchNovel();
     }
-  }, [status, id, router]);
+  }, [status, id, router, fetchNovel]);
 
   const fetchNovel = async () => {
     try {

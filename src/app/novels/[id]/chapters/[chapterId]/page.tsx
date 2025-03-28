@@ -235,4 +235,4 @@ export default function ChapterDetail({ params }: ChapterDetailProps) {
       </article>
     </div>
   );
-}
+} 

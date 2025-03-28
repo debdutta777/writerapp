@@ -22,6 +22,24 @@ export default function MyNovels() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  const fetchNovels = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/novels?authorId=${session.user.id}`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch novels');
+      }
+
+      const data = await res.json();
+      setNovels(data.novels);
+    } catch (error) {
+      setError('Failed to fetch novels. Please try again later.');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [session]);
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.replace('/login');
@@ -29,26 +47,7 @@ export default function MyNovels() {
     if (status === 'authenticated' && session?.user?.id) {
       fetchNovels();
     }
-  }, [status, session, router]);
-
-  const fetchNovels = useCallback(async () => {
-    if (!session?.user?.id) return;
-    
-    try {
-      const res = await fetch(`/api/novels?authorId=${session.user.id}`);
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to fetch novels');
-      }
-
-      setNovels(data.novels || []);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Something went wrong');
-    } finally {
-      setLoading(false);
-    }
-  }, [session?.user?.id]);
+  }, [status, session, router, fetchNovels]);
 
   if (status === 'loading' || loading) {
     return (
