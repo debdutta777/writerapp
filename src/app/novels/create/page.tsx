@@ -4,13 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import Image from 'next/image';
+import ImageUpload from '@/components/ImageUpload';
 
 export default function CreateNovel() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [coverImage, setCoverImage] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -30,14 +29,6 @@ export default function CreateNovel() {
     );
   }
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setCoverImage(file);
-      setPreview(URL.createObjectURL(file));
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -48,17 +39,19 @@ export default function CreateNovel() {
         throw new Error('Title and description are required');
       }
 
-      // Create FormData to send file
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('description', description);
-      if (coverImage) {
-        formData.append('coverImage', coverImage);
-      }
+      // Create data object to send
+      const novelData = {
+        title,
+        description,
+        coverImage,
+      };
 
       const res = await fetch('/api/novels', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(novelData),
       });
 
       const data = await res.json();
@@ -114,57 +107,13 @@ export default function CreateNovel() {
         </div>
 
         <div>
-          <label htmlFor="coverImage" className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Cover Image
           </label>
-          <div className="mt-1 flex items-center space-x-6">
-            <div className="flex-shrink-0">
-              {preview ? (
-                <div className="relative h-40 w-32 overflow-hidden rounded-md">
-                  <Image
-                    src={preview}
-                    alt="Cover preview"
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
-                </div>
-              ) : (
-                <div className="h-40 w-32 rounded-md bg-gray-200 flex items-center justify-center">
-                  <svg
-                    className="h-12 w-12 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-              )}
-            </div>
-            <div className="flex-1">
-              <input
-                type="file"
-                id="coverImage"
-                className="sr-only"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-              <label
-                htmlFor="coverImage"
-                className="relative cursor-pointer rounded-md bg-white py-2 px-3 text-sm font-semibold text-blue-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-              >
-                {preview ? 'Change image' : 'Upload image'}
-              </label>
-              <p className="mt-2 text-xs text-gray-500">
-                Recommended size: 800x1200 pixels. JPG, PNG or WebP.
-              </p>
-            </div>
-          </div>
+          <ImageUpload
+            onImageUpload={(url) => setCoverImage(url)}
+            className="mt-1"
+          />
         </div>
 
         {error && (

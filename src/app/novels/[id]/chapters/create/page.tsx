@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { use } from 'react';
+import MultiImageUpload from '@/components/MultiImageUpload';
 
 interface NovelChapterCreateProps {
   params: Promise<{
@@ -29,8 +29,7 @@ export default function CreateChapter({ params }: NovelChapterCreateProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [chapterNumber, setChapterNumber] = useState('');
-  const [images, setImages] = useState<FileList | null>(null);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]);
   const [novel, setNovel] = useState<Novel | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -38,17 +37,7 @@ export default function CreateChapter({ params }: NovelChapterCreateProps) {
   const router = useRouter();
   const { data: _session, status } = useSession();
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/login');
-    }
-    if (status === 'authenticated') {
-      fetchNovel();
-    }
-  }, [status, id, router, fetchNovel]);
-
-  const fetchNovel = async () => {
+  const fetchNovel = useCallback(async () => {
     try {
       const res = await fetch(`/api/novels/${id}`);
       const data = await res.json();
@@ -71,21 +60,17 @@ export default function CreateChapter({ params }: NovelChapterCreateProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      setImages(files);
-      
-      // Create previews
-      const imageUrls: string[] = [];
-      for (let i = 0; i < files.length; i++) {
-        imageUrls.push(URL.createObjectURL(files[i]));
-      }
-      setPreviews(imageUrls);
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.replace('/login');
     }
-  };
+    if (status === 'authenticated') {
+      fetchNovel();
+    }
+  }, [status, id, router, fetchNovel]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,21 +85,20 @@ export default function CreateChapter({ params }: NovelChapterCreateProps) {
         throw new Error('All fields are required');
       }
 
-      // Create FormData to send files
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('content', content);
-      formData.append('chapterNumber', chapterNumber);
-      
-      if (images) {
-        for (let i = 0; i < images.length; i++) {
-          formData.append(`images[${i}]`, images[i]);
-        }
-      }
+      // Create data to send
+      const chapterData = {
+        title,
+        content,
+        chapterNumber: parseInt(chapterNumber),
+        images
+      };
 
       const res = await fetch(`/api/novels/${id}/chapters`, {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(chapterData),
       });
 
       const data = await res.json();
@@ -226,40 +210,10 @@ export default function CreateChapter({ params }: NovelChapterCreateProps) {
           <label htmlFor="images" className="block text-sm font-medium text-gray-700">
             Images (Optional)
           </label>
-          <div className="mt-1">
-            <input
-              type="file"
-              id="images"
-              className="sr-only"
-              onChange={handleImageChange}
-              multiple
-              accept="image/*"
-            />
-            <label
-              htmlFor="images"
-              className="relative cursor-pointer rounded-md bg-white py-2 px-3 text-sm font-semibold text-blue-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-            >
-              Upload images
-            </label>
-            <p className="mt-2 text-xs text-gray-500">
-              You can upload multiple images to illustrate your chapter
-            </p>
-          </div>
-          
-          {previews.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {previews.map((preview, index) => (
-                <div key={index} className="relative h-24 w-full overflow-hidden rounded-md">
-                  <Image
-                    src={preview}
-                    alt={`Preview ${index + 1}`}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+          <MultiImageUpload
+            onImagesUpload={(urls) => setImages(urls)}
+            className="mt-1"
+          />
         </div>
 
         {error && (

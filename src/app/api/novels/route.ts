@@ -2,11 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/db';
 import NovelModel from '@/models/Novel';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
 import { authOptions } from '../auth/[...nextauth]/route';
-import { mkdir } from 'fs/promises';
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,11 +15,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Parse form data
-    const formData = await req.formData();
-    const title = formData.get('title') as string;
-    const description = formData.get('description') as string;
-    const coverImageFile = formData.get('coverImage') as File | null;
+    // Parse JSON data
+    const { title, description, coverImage } = await req.json();
 
     // Validate inputs
     if (!title || !description) {
@@ -33,30 +26,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Process image upload
-    let coverImagePath = null;
-    if (coverImageFile) {
-      const bytes = await coverImageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      // Generate unique filename
-      const filename = `${uuidv4()}-${coverImageFile.name.replace(/\s/g, '_')}`;
-      const uploadDir = join(process.cwd(), 'public/uploads');
-      
-      // Ensure upload directory exists
-      try {
-        await mkdir(uploadDir, { recursive: true });
-      } catch (_) {
-        console.log('Directory already exists or could not be created');
-      }
-      
-      const imagePath = join(uploadDir, filename);
-
-      // Save file
-      await writeFile(imagePath, buffer);
-      coverImagePath = `/uploads/${filename}`;
-    }
-
     // Connect to database
     await connectDB();
 
@@ -64,7 +33,7 @@ export async function POST(req: NextRequest) {
     const novel = await NovelModel.create({
       title,
       description,
-      coverImage: coverImagePath,
+      coverImage,
       author: session.user.id,
       views: 0,
     });
@@ -114,9 +83,9 @@ export async function GET(req: NextRequest) {
       novels,
       pagination: {
         total,
-        pages: Math.ceil(total / limit),
         page,
         limit,
+        pages: Math.ceil(total / limit),
       },
     });
   } catch (error) {
