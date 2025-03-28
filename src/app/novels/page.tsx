@@ -32,7 +32,7 @@ export default function NovelsPage() {
         const data = await response.json();
         
         if (response.ok) {
-          setNovels(data);
+          setNovels(Array.isArray(data) ? data : (data.novels || []));
         } else {
           setError(data.error || 'Failed to fetch novels');
         }
@@ -109,7 +109,7 @@ export default function NovelsPage() {
                   {novel.coverImage ? (
                     <Image
                       src={novel.coverImage}
-                      alt={novel.title}
+                      alt={novel.title || 'Novel cover'}
                       fill
                       className="object-cover"
                     />
@@ -120,11 +120,11 @@ export default function NovelsPage() {
                   )}
                 </div>
                 <div className="p-4">
-                  <h2 className="text-xl font-semibold mb-2 text-gray-800">{novel.title}</h2>
+                  <h2 className="text-xl font-semibold mb-2 text-gray-800">{novel.title || 'Untitled'}</h2>
                   <p className="text-gray-600 text-sm mb-3">
-                    By {novel.author.name} · {new Date(novel.createdAt).toLocaleDateString()}
+                    By {novel.author?.name || 'Unknown'} · {novel.createdAt ? new Date(novel.createdAt).toLocaleDateString() : 'Unknown date'}
                   </p>
-                  <p className="text-gray-700 line-clamp-3">{novel.description}</p>
+                  <p className="text-gray-700 line-clamp-3">{novel.description || 'No description available'}</p>
                   <div className="mt-4 flex items-center text-sm text-gray-500">
                     <svg
                       className="h-4 w-4 mr-1"
@@ -145,7 +145,7 @@ export default function NovelsPage() {
                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                       />
                     </svg>
-                    {novel.views} views
+                    {novel.views || 0} views
                   </div>
                 </div>
               </Link>
