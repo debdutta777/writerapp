@@ -42,7 +42,7 @@ npm install
 3. Set up environment variables
 Create a `.env.local` file in the root directory with the following variables:
 ```
-MONGODB_URI=mongodb+srv://DEBDUTTA:iZoMmLP7scgtHHX7@cluster0.iteua.mongodb.net/creator-db?retryWrites=true&w=majority&appName=Cluster0
+MONGODB_URI=mongodb+srv://your-username:your-password@your-cluster.mongodb.net/your-database
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=your-next-auth-secret
 ```
