@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -43,11 +43,7 @@ export default function NovelDetail({ params }: NovelDetailProps) {
   const { data: session } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    fetchNovel();
-  }, [id]);
-
-  const fetchNovel = async () => {
+  const fetchNovel = useCallback(async () => {
     try {
       const res = await fetch(`/api/novels/${id}`);
       const data = await res.json();
@@ -63,7 +59,11 @@ export default function NovelDetail({ params }: NovelDetailProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchNovel();
+  }, [id, fetchNovel]);
 
   const handleDeleteNovel = async () => {
     if (!confirm('Are you sure you want to delete this novel? This action cannot be undone.')) {
@@ -250,14 +250,9 @@ export default function NovelDetail({ params }: NovelDetailProps) {
               <div className="text-center py-8 border border-gray-200 rounded-md">
                 <p className="text-gray-500">No chapters available yet.</p>
                 {isAuthor && (
-                  <div className="mt-4">
-                    <Link
-                      href={`/novels/${novel._id}/chapters/create`}
-                      className="text-blue-600 hover:text-blue-500"
-                    >
-                      Add the first chapter →
-                    </Link>
-                  </div>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Your novel doesn&apos;t have any chapters yet. Click the &quot;Add Chapter&quot; button to start adding content.
+                  </p>
                 )}
               </div>
             ) : (

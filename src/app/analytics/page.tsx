@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -23,30 +23,29 @@ export default function Analytics() {
     if (status === 'unauthenticated') {
       router.replace('/login');
     }
-
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       fetchNovels();
     }
-  }, [status, router]);
+  }, [status, session, router, fetchNovels]);
 
-  const fetchNovels = async () => {
+  const fetchNovels = useCallback(async () => {
+    if (!session?.user?.id) return;
+    
     try {
-      const res = await fetch(`/api/novels?authorId=${session?.user.id}`);
+      const res = await fetch(`/api/novels?authorId=${session.user.id}`);
       const data = await res.json();
 
       if (!res.ok) {
         throw new Error(data.message || 'Failed to fetch novels');
       }
 
-      // Sort by views count, descending
-      const sortedNovels = [...data.novels].sort((a, b) => b.views - a.views);
-      setNovels(sortedNovels);
+      setNovels(data.novels || []);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Something went wrong');
     } finally {
       setLoading(false);
     }
-  };
+  }, [session?.user?.id]);
 
   if (status === 'loading' || loading) {
     return (

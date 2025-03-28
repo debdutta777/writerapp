@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       // Ensure upload directory exists
       try {
         await mkdir(uploadDir, { recursive: true });
-      } catch (err) {
+      } catch (_) {
         console.log('Directory already exists or could not be created');
       }
       
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build query
-    const query: any = {};
+    const query: Record<string, unknown> = {};
     if (authorId) {
       query.author = authorId;
     }

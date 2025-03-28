@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -26,28 +26,29 @@ export default function MyNovels() {
     if (status === 'unauthenticated') {
       router.replace('/login');
     }
-
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       fetchNovels();
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
-  const fetchNovels = async () => {
+  const fetchNovels = useCallback(async () => {
+    if (!session?.user?.id) return;
+    
     try {
-      const res = await fetch(`/api/novels?authorId=${session?.user.id}`);
+      const res = await fetch(`/api/novels?authorId=${session.user.id}`);
       const data = await res.json();
 
       if (!res.ok) {
         throw new Error(data.message || 'Failed to fetch novels');
       }
 
-      setNovels(data.novels);
+      setNovels(data.novels || []);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Something went wrong');
     } finally {
       setLoading(false);
     }
-  };
+  }, [session?.user?.id]);
 
   if (status === 'loading' || loading) {
     return (
@@ -109,8 +110,8 @@ export default function MyNovels() {
             />
           </svg>
           <h3 className="mt-2 text-sm font-medium text-gray-900">No novels</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            You haven't created any novels yet.
+          <p className="text-gray-600">
+            You haven&apos;t created any novels yet.
           </p>
           <div className="mt-6">
             <Link

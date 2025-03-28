@@ -18,6 +18,10 @@ interface Novel {
   title: string;
 }
 
+interface Chapter {
+  chapterNumber: number;
+}
+
 export default function CreateChapter({ params }: NovelChapterCreateProps) {
   // Unwrap the params Promise with React.use
   const { id } = use(params);
@@ -32,7 +36,7 @@ export default function CreateChapter({ params }: NovelChapterCreateProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: _session, status } = useSession();
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -57,7 +61,7 @@ export default function CreateChapter({ params }: NovelChapterCreateProps) {
       
       // Get the highest chapter number to suggest the next one
       if (data.chapters && data.chapters.length > 0) {
-        const highest = Math.max(...data.chapters.map((c: any) => c.chapterNumber));
+        const highest = Math.max(...data.chapters.map((c: Chapter) => c.chapterNumber));
         setChapterNumber((highest + 1).toString());
       } else {
         setChapterNumber('1');
@@ -171,7 +175,7 @@ export default function CreateChapter({ params }: NovelChapterCreateProps) {
       </div>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-6">
-        Add Chapter to "{novel.title}"
+        Add Chapter to &quot;{novel.title}&quot;
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">

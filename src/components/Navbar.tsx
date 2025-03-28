@@ -5,7 +5,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useState } from 'react';
 
 export default function Navbar() {
-  const { data: session, status } = useSession();
+  const { data: _session, status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (

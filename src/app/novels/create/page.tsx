@@ -10,11 +10,11 @@ export default function CreateNovel() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const [error, setError] = useState('');
+  const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: _session, status } = useSession();
 
   // Redirect if not authenticated
   if (status === 'unauthenticated') {
@@ -34,7 +34,7 @@ export default function CreateNovel() {
     const file = e.target.files?.[0];
     if (file) {
       setCoverImage(file);
-      setCoverPreview(URL.createObjectURL(file));
+      setPreview(URL.createObjectURL(file));
     }
   };
 
@@ -119,10 +119,10 @@ export default function CreateNovel() {
           </label>
           <div className="mt-1 flex items-center space-x-6">
             <div className="flex-shrink-0">
-              {coverPreview ? (
+              {preview ? (
                 <div className="relative h-40 w-32 overflow-hidden rounded-md">
                   <Image
-                    src={coverPreview}
+                    src={preview}
                     alt="Cover preview"
                     fill
                     style={{ objectFit: 'cover' }}
@@ -158,7 +158,7 @@ export default function CreateNovel() {
                 htmlFor="coverImage"
                 className="relative cursor-pointer rounded-md bg-white py-2 px-3 text-sm font-semibold text-blue-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
               >
-                {coverPreview ? 'Change image' : 'Upload image'}
+                {preview ? 'Change image' : 'Upload image'}
               </label>
               <p className="mt-2 text-xs text-gray-500">
                 Recommended size: 800x1200 pixels. JPG, PNG or WebP.

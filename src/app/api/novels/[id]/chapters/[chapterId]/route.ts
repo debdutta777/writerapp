@@ -122,7 +122,7 @@ export async function PUT(
       // Ensure upload directory exists
       try {
         await mkdir(uploadDir, { recursive: true });
-      } catch (err) {
+      } catch (_) {
         console.log('Directory already exists or could not be created');
       }
       

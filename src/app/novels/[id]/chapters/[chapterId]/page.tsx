@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { use } from 'react';
 
-interface ChapterViewProps {
-  params: {
+interface ChapterDetailProps {
+  params: Promise<{
     id: string;
     chapterId: string;
-  };
+  }>;
 }
 
 interface Chapter {
@@ -32,7 +33,9 @@ interface Novel {
   };
 }
 
-export default function ChapterView({ params }: ChapterViewProps) {
+export default function ChapterDetail({ params }: ChapterDetailProps) {
+  const { id, chapterId } = use(params);
+  
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [novel, setNovel] = useState<Novel | null>(null);
   const [nextChapter, setNextChapter] = useState<string | null>(null);
@@ -41,25 +44,10 @@ export default function ChapterView({ params }: ChapterViewProps) {
   const [error, setError] = useState('');
   const { data: session } = useSession();
   const router = useRouter();
-  const { id, chapterId } = params;
 
-  useEffect(() => {
-    fetchChapterAndNovel();
-  }, [id, chapterId]);
-
-  const fetchChapterAndNovel = async () => {
+  const fetchChapterAndNovel = useCallback(async () => {
     try {
-      // Get the novel and all chapters
-      const novelRes = await fetch(`/api/novels/${id}`);
-      const novelData = await novelRes.json();
-
-      if (!novelRes.ok) {
-        throw new Error(novelData.message || 'Failed to fetch novel');
-      }
-
-      setNovel(novelData.novel);
-
-      // Get the specific chapter
+      // Fetch chapter
       const chapterRes = await fetch(`/api/novels/${id}/chapters/${chapterId}`);
       const chapterData = await chapterRes.json();
 
@@ -68,6 +56,16 @@ export default function ChapterView({ params }: ChapterViewProps) {
       }
 
       setChapter(chapterData.chapter);
+
+      // Fetch novel
+      const novelRes = await fetch(`/api/novels/${id}`);
+      const novelData = await novelRes.json();
+
+      if (!novelRes.ok) {
+        throw new Error(novelData.message || 'Failed to fetch novel');
+      }
+
+      setNovel(novelData.novel);
 
       // Set up next and previous chapter navigation
       const chapters = novelData.chapters || [];
@@ -84,13 +82,16 @@ export default function ChapterView({ params }: ChapterViewProps) {
       } else {
         setNextChapter(null);
       }
-
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Something went wrong');
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, chapterId]);
+
+  useEffect(() => {
+    fetchChapterAndNovel();
+  }, [id, chapterId, fetchChapterAndNovel]);
 
   const handleDeleteChapter = async () => {
     if (!confirm('Are you sure you want to delete this chapter? This action cannot be undone.')) {
@@ -200,40 +201,4 @@ export default function ChapterView({ params }: ChapterViewProps) {
                 <div className="relative w-full max-w-2xl h-96">
                   <Image
                     src={image}
-                    alt={`Illustration ${index + 1} for ${chapter.title}`}
-                    fill
-                    style={{ objectFit: 'contain' }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </article>
-
-      {/* Chapter navigation */}
-      <div className="mt-12 flex justify-between border-t border-gray-200 pt-6">
-        {prevChapter ? (
-          <Link
-            href={`/novels/${id}/chapters/${prevChapter}`}
-            className="text-blue-600 hover:text-blue-500"
-          >
-            ← Previous Chapter
-          </Link>
-        ) : (
-          <div></div>
-        )}
-        {nextChapter ? (
-          <Link
-            href={`/novels/${id}/chapters/${nextChapter}`}
-            className="text-blue-600 hover:text-blue-500"
-          >
-            Next Chapter →
-          </Link>
-        ) : (
-          <div></div>
-        )}
-      </div>
-    </div>
-  );
-} 
+                    alt={`

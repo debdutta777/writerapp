@@ -24,8 +24,6 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-
     try {
       const result = await signIn('credentials', {
         redirect: false,
@@ -34,15 +32,15 @@ export default function Login() {
       });
 
       if (result?.error) {
+        setLoading(false);
         setError(result.error);
-      } else {
-        router.push('/dashboard');
-        router.refresh();
+        return;
       }
-    } catch (error) {
-      setError('An error occurred. Please try again.');
-    } finally {
+
+      router.replace('/dashboard');
+    } catch (_error) {
       setLoading(false);
+      setError('An unexpected error occurred');
     }
   };
 
