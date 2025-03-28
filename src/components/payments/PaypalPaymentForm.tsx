@@ -19,6 +19,7 @@ export default function PaypalPaymentForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [formData, setFormData] = useState({
     paypalEmail: paypalEmail,
     paypalUsername: paypalUsername
@@ -45,6 +46,7 @@ export default function PaypalPaymentForm({
     try {
       setIsSubmitting(true);
       setError('');
+      setSuccessMessage('');
       
       const response = await fetch('/api/payments/paypal', {
         method: 'POST',
@@ -60,9 +62,11 @@ export default function PaypalPaymentForm({
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
+        throw new Error(data.error || 'Something went wrong');
       }
 
+      setSuccessMessage('PayPal details saved successfully!');
+      
       if (onSuccess) {
         onSuccess();
       }
@@ -77,6 +81,12 @@ export default function PaypalPaymentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-lg shadow-md">
+      {successMessage && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          {successMessage}
+        </div>
+      )}
+      
       <div>
         <label htmlFor="paypalEmail" className="block text-sm font-medium text-gray-700">
           PayPal Email <span className="text-red-500">*</span>

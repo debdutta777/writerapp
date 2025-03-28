@@ -12,6 +12,8 @@ export default function DonationOptions() {
   const [activeTab, setActiveTab] = useState('upi');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentData, setPaymentData] = useState<{
     upi: { upiId?: string; upiQrImage?: string };
     paypal: { paypalEmail?: string; paypalUsername?: string };
@@ -55,7 +57,10 @@ export default function DonationOptions() {
 
   const handleUpiSubmit = async (data: { upiId: string; upiQrImage?: string }) => {
     try {
-      setError(''); // Clear previous errors
+      // Clear previous messages and set loading state
+      setError('');
+      setSuccessMessage('');
+      setIsSubmitting(true);
       
       const response = await fetch('/api/payments/upi', {
         method: 'POST',
@@ -71,20 +76,22 @@ export default function DonationOptions() {
         throw new Error(responseData.error || 'Failed to save UPI details');
       }
 
-      // Success - update local state and show a success message
+      // Success - update local state
       setPaymentData(prev => ({
         ...prev,
         upi: { upiId: data.upiId, upiQrImage: data.upiQrImage }
       }));
       
       // Show success message
-      setError(''); // Clear any existing errors
+      setSuccessMessage('UPI payment details saved successfully!');
       
-      // Refresh the page to show updated data
+      // Refresh the page data
       router.refresh();
     } catch (err: any) {
       console.error('Error saving UPI details:', err);
       setError(err.message || 'An error occurred while saving UPI details');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -99,6 +106,12 @@ export default function DonationOptions() {
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
+        </div>
+      )}
+      
+      {successMessage && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          {successMessage}
         </div>
       )}
       
@@ -135,7 +148,7 @@ export default function DonationOptions() {
             initialUpiId={paymentData.upi.upiId}
             initialUpiQrImage={paymentData.upi.upiQrImage}
             onSubmit={handleUpiSubmit}
-            isSubmitting={false}
+            isSubmitting={isSubmitting}
           />
         ) : (
           <PaypalPaymentForm
