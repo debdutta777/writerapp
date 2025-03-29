@@ -6,10 +6,14 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import ImageUpload from '@/components/ImageUpload';
 
+// Predefined genres matching the reader-side application
+const GENRES = ['Fantasy', 'Romance', 'Sci-Fi', 'Mystery', 'Adventure', 'Horror', 'Thriller', 'History'];
+
 export default function CreateNovel() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [coverImage, setCoverImage] = useState('');
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -29,6 +33,14 @@ export default function CreateNovel() {
     );
   }
 
+  const handleGenreToggle = (genre: string) => {
+    setSelectedGenres(prev => 
+      prev.includes(genre)
+        ? prev.filter(g => g !== genre)
+        : [...prev, genre]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -39,11 +51,16 @@ export default function CreateNovel() {
         throw new Error('Title and description are required');
       }
 
+      if (selectedGenres.length === 0) {
+        throw new Error('Please select at least one genre');
+      }
+
       // Create data object to send
       const novelData = {
         title,
         description,
         coverImage,
+        genres: selectedGenres,
       };
 
       const res = await fetch('/api/novels', {
@@ -104,6 +121,31 @@ export default function CreateNovel() {
             onChange={(e) => setDescription(e.target.value)}
             required
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Genres
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {GENRES.map((genre) => (
+              <div key={genre} className="flex items-center">
+                <input
+                  id={`genre-${genre}`}
+                  type="checkbox"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  checked={selectedGenres.includes(genre)}
+                  onChange={() => handleGenreToggle(genre)}
+                />
+                <label htmlFor={`genre-${genre}`} className="ml-2 block text-sm text-gray-900">
+                  {genre}
+                </label>
+              </div>
+            ))}
+          </div>
+          {selectedGenres.length === 0 && (
+            <p className="mt-1 text-xs text-red-500">Please select at least one genre</p>
+          )}
         </div>
 
         <div>

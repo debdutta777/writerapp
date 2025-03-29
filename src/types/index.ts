@@ -17,6 +17,7 @@ export interface Novel {
   coverImage?: string;
   author: ObjectId | User;
   chapters?: Chapter[];
+  genres?: string[];
   views: number;
   createdAt?: Date;
   updatedAt?: Date;

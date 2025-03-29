@@ -19,6 +19,10 @@ const novelSchema = new mongoose.Schema<Novel>(
       ref: 'User',
       required: true,
     },
+    genres: {
+      type: [String],
+      default: [],
+    },
     views: {
       type: Number,
       default: 0,

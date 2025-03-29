@@ -16,12 +16,19 @@ export async function POST(req: NextRequest) {
     }
 
     // Parse JSON data
-    const { title, description, coverImage } = await req.json();
+    const { title, description, coverImage, genres } = await req.json();
 
     // Validate inputs
     if (!title || !description) {
       return NextResponse.json(
         { message: 'Title and description are required' },
+        { status: 400 }
+      );
+    }
+
+    if (!genres || !Array.isArray(genres) || genres.length === 0) {
+      return NextResponse.json(
+        { message: 'At least one genre is required' },
         { status: 400 }
       );
     }
@@ -34,6 +41,7 @@ export async function POST(req: NextRequest) {
       title,
       description,
       coverImage,
+      genres,
       author: session.user.id,
       views: 0,
     });
@@ -59,6 +67,7 @@ export async function GET(req: NextRequest) {
     // Get query parameters
     const { searchParams } = new URL(req.url);
     const authorId = searchParams.get('authorId');
+    const genre = searchParams.get('genre');
     const limit = parseInt(searchParams.get('limit') || '10');
     const page = parseInt(searchParams.get('page') || '1');
     const skip = (page - 1) * limit;
@@ -67,6 +76,9 @@ export async function GET(req: NextRequest) {
     const query: Record<string, unknown> = {};
     if (authorId) {
       query.author = authorId;
+    }
+    if (genre) {
+      query.genres = { $in: [genre] };
     }
 
     // Get novels
